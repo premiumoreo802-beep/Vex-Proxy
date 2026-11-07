@@ -1,0 +1,505 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vex Proxy</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #09090d;
+    color: white;
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.background {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+}
+
+.background video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(45%) saturate(75%);
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+        180deg,
+        rgba(0,0,0,.35),
+        rgba(0,0,0,.15),
+        rgba(0,0,0,.65)
+    );
+}
+
+header {
+    height: 75px;
+    padding: 0 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ffffff20;
+    background: #09090d30;
+    backdrop-filter: blur(10px);
+}
+
+.logo {
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 4px;
+}
+
+.logo span {
+    color: #d83c4c;
+}
+
+nav {
+    display: flex;
+    gap: 28px;
+}
+
+nav a {
+    color: #ffffffa0;
+    text-decoration: none;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+nav a:hover {
+    color: white;
+}
+
+main {
+    min-height: calc(100vh - 75px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 25px;
+}
+
+.hero {
+    width: 100%;
+    max-width: 650px;
+    text-align: center;
+}
+
+.subtitle {
+    font-size: 11px;
+    letter-spacing: 5px;
+    color: #ffffffa0;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+}
+
+h1 {
+    font-size: clamp(55px, 10vw, 105px);
+    letter-spacing: -6px;
+    line-height: 1;
+    font-weight: 900;
+    text-shadow: 0 5px 35px #0008;
+}
+
+h1 span {
+    color: transparent;
+    -webkit-text-stroke: 1px white;
+}
+
+.description {
+    color: #ffffffa0;
+    font-size: 13px;
+    line-height: 1.8;
+    margin: 22px auto 35px;
+}
+
+.search {
+    display: flex;
+    align-items: center;
+    padding: 7px;
+    border: 1px solid #ffffff35;
+    border-radius: 17px;
+    background: #111116a8;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 15px 50px #0005;
+}
+
+.search input {
+    flex: 1;
+    min-width: 0;
+    height: 48px;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: white;
+    padding: 0 15px;
+    font-size: 14px;
+}
+
+.search input::placeholder {
+    color: #ffffff70;
+}
+
+.search button {
+    height: 45px;
+    padding: 0 22px;
+    border: none;
+    border-radius: 11px;
+    background: #f1f0ef;
+    color: #111;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.search button:hover {
+    background: #d83c4c;
+    color: white;
+}
+
+.hint {
+    color: #ffffff70;
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin-top: 15px;
+}
+
+.shortcuts {
+    position: fixed;
+    right: 25px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.shortcut {
+    text-decoration: none;
+    color: white;
+    text-align: center;
+    font-size: 9px;
+}
+
+.shortcut div {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    background: #111116a8;
+    border: 1px solid #ffffff30;
+    border-radius: 13px;
+    backdrop-filter: blur(15px);
+    font-size: 17px;
+    margin-bottom: 5px;
+    transition: .2s;
+}
+
+.shortcut:hover div {
+    background: #d83c4c;
+    transform: translateY(-3px);
+}
+
+.dock {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 9px;
+    padding: 10px 14px;
+    border: 1px solid #ffffff25;
+    border-radius: 17px;
+    background: #111116a8;
+    backdrop-filter: blur(20px);
+}
+
+.dock a {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: #ffffff12;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.dock a:hover {
+    background: #d83c4c;
+}
+
+footer {
+    position: fixed;
+    bottom: 33px;
+    left: 5%;
+    color: #ffffff70;
+    font-size: 9px;
+    letter-spacing: 2px;
+}
+
+/* LAPTOP / DESKTOP */
+
+@media (min-width: 850px) {
+    main {
+        justify-content: flex-start;
+        padding-left: 13%;
+    }
+
+    .hero {
+        max-width: 650px;
+        text-align: left;
+    }
+
+    .description {
+        margin-left: 0;
+    }
+
+    .search {
+        max-width: 590px;
+    }
+
+    .hint {
+        text-align: left;
+    }
+
+    .dock {
+        left: auto;
+        right: 6%;
+        transform: none;
+    }
+}
+
+/* MOBILE */
+
+@media (max-width: 600px) {
+    header {
+        height: 65px;
+        padding: 0 20px;
+    }
+
+    nav {
+        display: none;
+    }
+
+    main {
+        min-height: calc(100vh - 65px);
+        padding: 20px;
+    }
+
+    .hero {
+        transform: translateY(-25px);
+    }
+
+    h1 {
+        font-size: 65px;
+        letter-spacing: -4px;
+    }
+
+    .subtitle {
+        font-size: 9px;
+        letter-spacing: 3px;
+    }
+
+    .description {
+        font-size: 12px;
+        max-width: 300px;
+    }
+
+    .shortcuts {
+        right: 10px;
+        gap: 13px;
+    }
+
+    .shortcut div {
+        width: 34px;
+        height: 34px;
+        font-size: 14px;
+    }
+
+    .search input {
+        font-size: 11px;
+        padding: 0 9px;
+    }
+
+    .search button {
+        padding: 0 13px;
+        font-size: 10px;
+    }
+
+    footer {
+        display: none;
+    }
+
+    .dock {
+        bottom: 15px;
+        gap: 6px;
+        padding: 8px;
+    }
+
+    .dock a {
+        width: 30px;
+        height: 30px;
+    }
+}
+
+@media (max-width: 370px) {
+    .shortcuts {
+        display: none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="background">
+    <video autoplay muted loop playsinline>
+        <source src="car-video.mp4" type="video/mp4">
+    </video>
+</div>
+
+<div class="overlay"></div>
+
+<header>
+    <div class="logo">VEX <span>/</span> NETWORK</div>
+
+    <nav>
+        <a href="#">Home</a>
+        <a href="#shortcuts">Shortcuts</a>
+        <a href="https://github.com">GitHub</a>
+    </nav>
+</header>
+
+<main>
+    <section class="hero">
+
+        <div class="subtitle">
+            YOUR WINDOW TO EVERYWHERE
+        </div>
+
+        <h1>
+            Vex <span>Proxy</span>
+        </h1>
+
+        <p class="description">
+            A cleaner way to get where you're going.<br>
+            Search something, or enter a website address.
+        </p>
+
+        <form class="search" id="searchForm">
+            <input
+                id="searchInput"
+                type="text"
+                placeholder="Search the web or enter a URL..."
+                autocomplete="off"
+            >
+
+            <button type="submit">
+                EXPLORE ↗
+            </button>
+        </form>
+
+        <div class="hint">
+            PRESS ENTER TO LAUNCH · VEX EXPERIENCE
+        </div>
+
+    </section>
+</main>
+
+<aside class="shortcuts" id="shortcuts">
+
+    <a class="shortcut" href="https://youtube.com">
+        <div>▶</div>
+        YouTube
+    </a>
+
+    <a class="shortcut" href="https://github.com">
+        <div>⌘</div>
+        GitHub
+    </a>
+
+    <a class="shortcut" href="https://discord.com/app">
+        <div>◉</div>
+        Discord
+    </a>
+
+    <a class="shortcut" href="https://google.com">
+        <div>G</div>
+        Google
+    </a>
+
+    <a class="shortcut" href="https://tiktok.com">
+        <div>♪</div>
+        TikTok
+    </a>
+
+</aside>
+
+<div class="dock">
+    <a href="https://google.com">G</a>
+    <a href="https://youtube.com">▶</a>
+    <a href="https://github.com">⌘</a>
+    <a href="https://discord.com">◉</a>
+    <a href="https://tiktok.com">♪</a>
+</div>
+
+<footer>
+    VEX PROXY · BUILT FOR THE OPEN WEB
+</footer>
+
+<script>
+const form = document.getElementById("searchForm");
+const input = document.getElementById("searchInput");
+
+form.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    let query = input.value.trim();
+
+    if (!query) {
+        input.focus();
+        return;
+    }
+
+    const isURL =
+        /^https?:\/\//i.test(query) ||
+        (/^[\w-]+\.[a-z]{2,}(\/.*)?$/i.test(query)
+        && !query.includes(" "));
+
+    let destination;
+
+    if (isURL) {
+        destination = /^https?:\/\//i.test(query)
+            ? query
+            : "https://" + query;
+    } else {
+        destination =
+            "https://www.google.com/search?q=" +
+            encodeURIComponent(query);
+    }
+
+    window.open(
+        destination,
+        "_blank",
+        "noopener,noreferrer"
+    );
+});
+</script>
+
+</body>
+  </html>
+  
