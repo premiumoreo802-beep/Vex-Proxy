@@ -1,14 +1,14 @@
 
-const cors = {
+const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type"
 };
 
-function reply(data, status = 200) {
+function json(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...cors, "Content-Type": "application/json" }
+    headers: { ...CORS, "Content-Type": "application/json" }
   });
 }
 
@@ -16,45 +16,42 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
-    if (request.method === "OPTIONS") {
-      return new Response(null, { headers: cors });
-    }
+    if (request.method === "OPTIONS")
+      return new Response(null, { headers: CORS });
 
-    if (url.pathname === "/api/health") {
-      return reply({ online: true, name: "VEX TETRIS API" });
-    }
+    if (url.pathname === "/api/health")
+      return json({ online: true, service: "VEX PROXY" });
 
     if (url.pathname === "/api/scores" && request.method === "GET") {
-      if (!env.VEX_SCORES) return reply({ scores: [], storage: false });
-      const scores = await env.VEX_SCORES.get("leaderboard", "json") || [];
-      return reply({ scores, storage: true });
+      if (!env.VEX_SCORES) return json({ scores: [] });
+      const scores = await env.VEX_SCORES.get("tetris", "json") || [];
+      return json({ scores });
     }
 
     if (url.pathname === "/api/scores" && request.method === "POST") {
-      let data;
-      try { data = await request.json(); }
-      catch { return reply({ error: "Invalid JSON" }, 400); }
+      if (!env.VEX_SCORES)
+        return json({ error: "KV storage not configured" }, 503);
 
-      const name = String(data.name || "PLAYER").trim().slice(0, 16);
-      const score = Math.floor(Number(data.score));
+      let body;
+      try { body = await request.json(); }
+      catch { return json({ error: "Invalid JSON" }, 400); }
 
-      if (!Number.isFinite(score) || score < 0 || score > 100000000) {
-        return reply({ error: "Invalid score" }, 400);
-      }
+      const name = String(body.name || "PLAYER").trim().slice(0, 16);
+      const score = Math.floor(Number(body.score));
 
-      if (!env.VEX_SCORES) {
-        return reply({ error: "Leaderboard storage is not configured" }, 503);
-      }
+      if (!Number.isFinite(score) || score < 0 || score > 100000000)
+        return json({ error: "Invalid score" }, 400);
 
-      const scores = await env.VEX_SCORES.get("leaderboard", "json") || [];
+      const scores = await env.VEX_SCORES.get("tetris", "json") || [];
       scores.push({ name, score, date: new Date().toISOString() });
       scores.sort((a, b) => b.score - a.score);
-      const top = scores.slice(0, 50);
 
-      await env.VEX_SCORES.put("leaderboard", JSON.stringify(top));
-      return reply({ success: true, scores: top });
+      const top = scores.slice(0, 50);
+      await env.VEX_SCORES.put("tetris", JSON.stringify(top));
+
+      return json({ success: true, scores: top });
     }
 
-    return reply({ error: "Not found" }, 404);
+    return json({ error: "Not found" }, 404);
   }
 };
