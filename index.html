@@ -3,503 +3,274 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vex Proxy</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VEX Proxy</title>
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    background: #09090d;
-    color: white;
-    font-family: Arial, sans-serif;
-    min-height: 100vh;
-    overflow: hidden;
-}
-
-.background {
-    position: fixed;
-    inset: 0;
-    z-index: -2;
-}
-
-.background video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: brightness(45%) saturate(75%);
-}
-
-.overlay {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background: linear-gradient(
-        180deg,
-        rgba(0,0,0,.35),
-        rgba(0,0,0,.15),
-        rgba(0,0,0,.65)
-    );
-}
-
-header {
-    height: 75px;
-    padding: 0 5%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #ffffff20;
-    background: #09090d30;
-    backdrop-filter: blur(10px);
-}
-
-.logo {
-    font-size: 18px;
-    font-weight: bold;
-    letter-spacing: 4px;
-}
-
-.logo span {
-    color: #d83c4c;
-}
-
-nav {
-    display: flex;
-    gap: 28px;
-}
-
-nav a {
-    color: #ffffffa0;
-    text-decoration: none;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-nav a:hover {
-    color: white;
-}
-
-main {
-    min-height: calc(100vh - 75px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 25px;
-}
-
-.hero {
-    width: 100%;
-    max-width: 650px;
-    text-align: center;
-}
-
-.subtitle {
-    font-size: 11px;
-    letter-spacing: 5px;
-    color: #ffffffa0;
-    margin-bottom: 25px;
-    text-transform: uppercase;
-}
-
-h1 {
-    font-size: clamp(55px, 10vw, 105px);
-    letter-spacing: -6px;
-    line-height: 1;
-    font-weight: 900;
-    text-shadow: 0 5px 35px #0008;
-}
-
-h1 span {
-    color: transparent;
-    -webkit-text-stroke: 1px white;
-}
-
-.description {
-    color: #ffffffa0;
-    font-size: 13px;
-    line-height: 1.8;
-    margin: 22px auto 35px;
-}
-
-.search {
-    display: flex;
-    align-items: center;
-    padding: 7px;
-    border: 1px solid #ffffff35;
-    border-radius: 17px;
-    background: #111116a8;
-    backdrop-filter: blur(20px);
-    box-shadow: 0 15px 50px #0005;
-}
-
-.search input {
-    flex: 1;
-    min-width: 0;
-    height: 48px;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: white;
-    padding: 0 15px;
-    font-size: 14px;
-}
-
-.search input::placeholder {
-    color: #ffffff70;
-}
-
-.search button {
-    height: 45px;
-    padding: 0 22px;
-    border: none;
-    border-radius: 11px;
-    background: #f1f0ef;
-    color: #111;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.search button:hover {
-    background: #d83c4c;
-    color: white;
-}
-
-.hint {
-    color: #ffffff70;
-    font-size: 10px;
-    letter-spacing: 2px;
-    margin-top: 15px;
-}
-
-.shortcuts {
-    position: fixed;
-    right: 25px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-}
-
-.shortcut {
-    text-decoration: none;
-    color: white;
-    text-align: center;
-    font-size: 9px;
-}
-
-.shortcut div {
-    width: 42px;
-    height: 42px;
-    display: grid;
-    place-items: center;
-    background: #111116a8;
-    border: 1px solid #ffffff30;
-    border-radius: 13px;
-    backdrop-filter: blur(15px);
-    font-size: 17px;
-    margin-bottom: 5px;
-    transition: .2s;
-}
-
-.shortcut:hover div {
-    background: #d83c4c;
-    transform: translateY(-3px);
-}
-
-.dock {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 9px;
-    padding: 10px 14px;
-    border: 1px solid #ffffff25;
-    border-radius: 17px;
-    background: #111116a8;
-    backdrop-filter: blur(20px);
-}
-
-.dock a {
-    width: 34px;
-    height: 34px;
-    display: grid;
-    place-items: center;
-    border-radius: 10px;
-    background: #ffffff12;
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.dock a:hover {
-    background: #d83c4c;
-}
-
-footer {
-    position: fixed;
-    bottom: 33px;
-    left: 5%;
-    color: #ffffff70;
-    font-size: 9px;
-    letter-spacing: 2px;
-}
-
-/* LAPTOP / DESKTOP */
-
-@media (min-width: 850px) {
-    main {
-        justify-content: flex-start;
-        padding-left: 13%;
-    }
-
-    .hero {
-        max-width: 650px;
-        text-align: left;
-    }
-
-    .description {
-        margin-left: 0;
-    }
-
-    .search {
-        max-width: 590px;
-    }
-
-    .hint {
-        text-align: left;
-    }
-
-    .dock {
-        left: auto;
-        right: 6%;
-        transform: none;
-    }
-}
-
-/* MOBILE */
-
-@media (max-width: 600px) {
-    header {
-        height: 65px;
-        padding: 0 20px;
-    }
-
-    nav {
-        display: none;
-    }
-
-    main {
-        min-height: calc(100vh - 65px);
-        padding: 20px;
-    }
-
-    .hero {
-        transform: translateY(-25px);
-    }
-
-    h1 {
-        font-size: 65px;
-        letter-spacing: -4px;
-    }
-
-    .subtitle {
-        font-size: 9px;
-        letter-spacing: 3px;
-    }
-
-    .description {
-        font-size: 12px;
-        max-width: 300px;
-    }
-
-    .shortcuts {
-        right: 10px;
-        gap: 13px;
-    }
-
-    .shortcut div {
-        width: 34px;
-        height: 34px;
-        font-size: 14px;
-    }
-
-    .search input {
-        font-size: 11px;
-        padding: 0 9px;
-    }
-
-    .search button {
-        padding: 0 13px;
-        font-size: 10px;
-    }
-
-    footer {
-        display: none;
-    }
-
-    .dock {
-        bottom: 15px;
-        gap: 6px;
-        padding: 8px;
-    }
-
-    .dock a {
-        width: 30px;
-        height: 30px;
-    }
-}
-
-@media (max-width: 370px) {
-    .shortcuts {
-        display: none;
-    }
-}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#08080b;color:white;font-family:Arial,sans-serif;min-height:100vh}
+header{height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:#101014;border-bottom:1px solid #292930;position:relative;z-index:5}
+.logo{font-size:23px;font-weight:900;letter-spacing:4px;color:#ff3535}
+.logo span{color:white}
+nav{display:flex;gap:22px}
+a{color:#ccc;text-decoration:none;font-size:13px}
+a:hover{color:#ff4545}
+#arcadeBtn{position:fixed;right:17px;top:45%;z-index:20;width:52px;height:52px;border-radius:15px;background:#a51e29;border:1px solid #ff555f;color:white;font-size:24px;cursor:pointer;box-shadow:0 0 22px #a51e2955}
+main{max-width:1050px;margin:auto;padding:75px 20px 30px}
+.hero{text-align:center}
+.tag{color:#ff4545;font-size:11px;letter-spacing:5px}
+h1{font-size:clamp(42px,9vw,76px);font-weight:900;letter-spacing:5px;margin:12px 0}
+h1 span{color:#ed343e}
+.sub{color:#888;font-size:13px;letter-spacing:2px}
+.search{display:flex;max-width:620px;margin:35px auto 15px;background:#17171e;border:1px solid #3a3035;border-radius:12px;padding:6px}
+.search input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:white;padding:13px;font-size:14px}
+.search button,.tile button{background:#a51e29;color:white;border:0;border-radius:8px;padding:12px 18px;font-weight:bold;cursor:pointer}
+.section{margin-top:55px}
+.section h2{font-size:14px;letter-spacing:3px;margin-bottom:17px}
+.section h2 span{color:#ff424b}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
+.tile{background:#121218;border:1px solid #303039;border-radius:12px;padding:19px;transition:.2s}
+.tile:hover{border-color:#d83a43;transform:translateY(-3px)}
+.tile b{display:block;margin-bottom:8px}
+.tile small{color:#888}
+footer{text-align:center;color:#555;padding:30px;font-size:11px;letter-spacing:2px}
+#arcade{display:none;position:fixed;inset:0;background:#08080b;z-index:30;overflow:auto;padding:20px}
+.arcTop{display:flex;justify-content:space-between;align-items:center;max-width:850px;margin:0 auto 20px}
+.arcTop h2{letter-spacing:3px}.red{color:#ff424b}
+#closeArcade{background:#222;color:white;border:1px solid #444;border-radius:8px;padding:10px 15px}
+.gameWrap{max-width:850px;margin:auto;display:flex;gap:22px;justify-content:center;flex-wrap:wrap}
+.game{width:min(100%,320px);background:#121218;border:1px solid #333;border-radius:12px;padding:12px}
+.stats{display:flex;gap:6px;margin-bottom:10px}
+.stat{flex:1;text-align:center;background:#202028;padding:8px;border-radius:7px}
+.stat small{display:block;color:#999;font-size:10px}.stat b{font-size:18px}
+canvas{width:100%;height:auto;display:block;background:#08080b;border:2px solid #383840}
+#gameMessage{text-align:center;color:#ff5a5a;font-size:12px;padding:10px;min-height:30px}
+.actions,.controls{display:grid;gap:7px}
+.actions{grid-template-columns:1fr 1fr}
+.controls{grid-template-columns:repeat(4,1fr);margin-top:8px}
+.actions button,.controls button{background:#25252e;border:1px solid #454550;color:white;padding:12px;border-radius:8px;font-weight:bold}
+.actions .start{background:#a51e29}
+.gameSide{width:240px;display:flex;flex-direction:column;gap:12px}
+.panel{background:#121218;border:1px solid #333;border-radius:12px;padding:16px}
+.panel h3{font-size:13px;letter-spacing:2px;margin-bottom:12px}
+.panel p{color:#999;font-size:13px;line-height:1.8}
+#scores{font-size:12px;color:#bbb;line-height:2}
+@media(max-width:600px){header{padding:0 13px}nav{gap:11px}nav a{font-size:11px}main{padding-top:65px}.gameSide{width:min(100%,320px)}#arcade{padding:12px}}
 </style>
 </head>
-
 <body>
 
-<div class="background">
-    <video autoplay muted loop playsinline>
-        <source src="car-video.mp4" type="video/mp4">
-    </video>
-</div>
-
-<div class="overlay"></div>
-
 <header>
-    <div class="logo">VEX <span>/</span> NETWORK</div>
-
-    <nav>
-        <a href="#">Home</a>
-        <a href="#shortcuts">Shortcuts</a>
-        <a href="https://github.com">GitHub</a>
-    </nav>
+ <div class="logo">VEX <span>/ NETWORK</span></div>
+ <nav>
+  <a href="#">Home</a>
+  <a href="#shortcuts">Shortcuts</a>
+  <a href="https://github.com">GitHub</a>
+ </nav>
 </header>
 
-<main>
-    <section class="hero">
+<button id="arcadeBtn" aria-label="Open arcade" title="VEX Arcade">🎮</button>
 
-        <div class="subtitle">
-            YOUR WINDOW TO EVERYWHERE
-        </div>
+<main id="home">
+ <section class="hero">
+  <div class="tag">WELCOME TO THE NETWORK</div>
+  <h1>VEX <span>PROXY</span></h1>
+  <p class="sub">YOUR WEB. YOUR RULES.</p>
+  <form class="search" id="searchForm">
+   <input id="searchInput" placeholder="Search Google or enter a URL..." autocomplete="off">
+   <button>GO</button>
+  </form>
+ </section>
 
-        <h1>
-            Vex <span>Proxy</span>
-        </h1>
+ <section class="section" id="shortcuts">
+  <h2>QUICK <span>ACCESS</span></h2>
+  <div class="tiles">
+   <a class="tile" href="https://youtube.com"><b>YouTube</b><small>Watch videos</small></a>
+   <a class="tile" href="https://google.com"><b>Google</b><small>Search the web</small></a>
+   <a class="tile" href="https://discord.com"><b>Discord</b><small>Community</small></a>
+   <a class="tile" href="https://github.com"><b>GitHub</b><small>Explore projects</small></a>
+   <a class="tile" href="https://tiktok.com"><b>TikTok</b><small>Watch clips</small></a>
+  </div>
+ </section>
 
-        <p class="description">
-            A cleaner way to get where you're going.<br>
-            Search something, or enter a website address.
-        </p>
-
-        <form class="search" id="searchForm">
-            <input
-                id="searchInput"
-                type="text"
-                placeholder="Search the web or enter a URL..."
-                autocomplete="off"
-            >
-
-            <button type="submit">
-                EXPLORE ↗
-            </button>
-        </form>
-
-        <div class="hint">
-            PRESS ENTER TO LAUNCH · VEX EXPERIENCE
-        </div>
-
-    </section>
+ <section class="section">
+  <h2>VEX <span>ARCADE</span></h2>
+  <div class="tile">
+   <b>🎮 Tetris</b>
+   <small>One game. Endless high scores.</small><br><br>
+   <button onclick="openArcade()">PLAY NOW</button>
+  </div>
+ </section>
 </main>
 
-<aside class="shortcuts" id="shortcuts">
+<footer>VEX NETWORK · POWERED BY VEX</footer>
 
-    <a class="shortcut" href="https://youtube.com">
-        <div>▶</div>
-        YouTube
-    </a>
-
-    <a class="shortcut" href="https://github.com">
-        <div>⌘</div>
-        GitHub
-    </a>
-
-    <a class="shortcut" href="https://discord.com/app">
-        <div>◉</div>
-        Discord
-    </a>
-
-    <a class="shortcut" href="https://google.com">
-        <div>G</div>
-        Google
-    </a>
-
-    <a class="shortcut" href="https://tiktok.com">
-        <div>♪</div>
-        TikTok
-    </a>
-
-</aside>
-
-<div class="dock">
-    <a href="https://google.com">G</a>
-    <a href="https://youtube.com">▶</a>
-    <a href="https://github.com">⌘</a>
-    <a href="https://discord.com">◉</a>
-    <a href="https://tiktok.com">♪</a>
-</div>
-
-<footer>
-    VEX PROXY · BUILT FOR THE OPEN WEB
-</footer>
+<section id="arcade">
+ <div class="arcTop">
+  <h2>VEX <span class="red">ARCADE</span></h2>
+  <button id="closeArcade">✕ CLOSE</button>
+ </div>
+ <div class="gameWrap">
+  <div class="game">
+   <div class="stats">
+    <div class="stat"><small>SCORE</small><b id="score">0</b></div>
+    <div class="stat"><small>LINES</small><b id="lines">0</b></div>
+    <div class="stat"><small>LEVEL</small><b id="level">1</b></div>
+   </div>
+   <canvas id="board" width="300" height="600"></canvas>
+   <div id="gameMessage">PRESS START TO PLAY</div>
+   <div class="actions">
+    <button class="start" id="start">START</button>
+    <button id="pause">PAUSE</button>
+   </div>
+   <div class="controls">
+    <button id="left">◀</button><button id="rotate">↻</button>
+    <button id="down">▼</button><button id="right">▶</button>
+   </div>
+  </div>
+  <div class="gameSide">
+   <div class="panel"><h3>HOW TO PLAY</h3><p>← → Move<br>↑ Rotate<br>↓ Soft drop<br>SPACE Hard drop<br>P Pause</p></div>
+   <div class="panel"><h3>VEX <span class="red">LEADERBOARD</span></h3><div id="scores">Loading...</div></div>
+  </div>
+ </div>
+</section>
 
 <script>
-const form = document.getElementById("searchForm");
-const input = document.getElementById("searchInput");
+const API="https://YOUR-WORKER.workers.dev";
 
-form.addEventListener("submit", function(event) {
-    event.preventDefault();
-
-    let query = input.value.trim();
-
-    if (!query) {
-        input.focus();
-        return;
-    }
-
-    const isURL =
-        /^https?:\/\//i.test(query) ||
-        (/^[\w-]+\.[a-z]{2,}(\/.*)?$/i.test(query)
-        && !query.includes(" "));
-
-    let destination;
-
-    if (isURL) {
-        destination = /^https?:\/\//i.test(query)
-            ? query
-            : "https://" + query;
-    } else {
-        destination =
-            "https://www.google.com/search?q=" +
-            encodeURIComponent(query);
-    }
-
-    window.open(
-        destination,
-        "_blank",
-        "noopener,noreferrer"
-    );
+/* VEX SEARCH */
+document.getElementById("searchForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ let q=document.getElementById("searchInput").value.trim();
+ if(!q)return;
+ let url=/^https?:\/\//i.test(q)?q:
+  /^[\w-]+\.[a-z]{2,}/i.test(q)?"https://"+q:
+  "https://www.google.com/search?q="+encodeURIComponent(q);
+ window.open(url,"_blank");
 });
-</script>
 
+/* ARCADE PANEL */
+function openArcade(){
+ document.getElementById("arcade").style.display="block";
+ loadScores();
+}
+function closeArcade(){document.getElementById("arcade").style.display="none";}
+document.getElementById("arcadeBtn").onclick=openArcade;
+document.getElementById("closeArcade").onclick=closeArcade;
+
+/* TETRIS */
+const canvas=document.getElementById("board"),ctx=canvas.getContext("2d");
+const W=10,H=20,S=30;
+const colors=["","#f04444","#32c8e8","#3979e8","#f5c542","#a45be0","#42d68b","#ef8c37"];
+const shapes=[
+ [[1,0],[0,1],[1,1],[2,1]],[[0,0],[0,1],[0,2],[0,3]],
+ [[1,0],[2,0],[1,1],[2,1]],[[1,0],[2,0],[0,1],[1,1]],
+ [[0,0],[1,0],[1,1],[2,1]],[[0,0],[1,0],[2,0],[2,1]],
+ [[2,0],[0,1],[1,1],[2,1]]
+];
+let board,active,score=0,lines=0,level=1;
+let playing=false,paused=false,over=false,last=0,acc=0,frame=0;
+
+function newPiece(){let n=Math.floor(Math.random()*7);return{shape:shapes[n].map(p=>p.slice()),x:3,y:0,c:n+1};}
+function say(t){document.getElementById("gameMessage").textContent=t;}
+function update(){
+ document.getElementById("score").textContent=score;
+ document.getElementById("lines").textContent=lines;
+ document.getElementById("level").textContent=level;
+}
+function cell(x,y,c){
+ if(!c)return;
+ ctx.fillStyle=colors[c];ctx.fillRect(x*S+1,y*S+1,S-2,S-2);
+ ctx.fillStyle="rgba(255,255,255,.17)";ctx.fillRect(x*S+3,y*S+3,S-6,4);
+ ctx.strokeStyle="#17171b";ctx.strokeRect(x*S+1,y*S+1,S-2,S-2);
+}
+function draw(){
+ ctx.clearRect(0,0,300,600);ctx.fillStyle="#08080b";ctx.fillRect(0,0,300,600);
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++){ctx.strokeStyle="#181820";ctx.strokeRect(x*S,y*S,S,S);cell(x,y,board?.[y]?.[x]||0);}
+ if(active)for(const [x,y] of active.shape)cell(active.x+x,active.y+y,active.c);
+ if(!playing||paused){ctx.fillStyle="rgba(0,0,0,.72)";ctx.fillRect(0,0,300,600);ctx.fillStyle="white";ctx.textAlign="center";ctx.font="bold 23px Arial";ctx.fillText(over?"GAME OVER":paused?"PAUSED":"VEX TETRIS",150,290);}
+}
+function valid(p,dx=0,dy=0,shape=p.shape){
+ return shape.every(([x,y])=>{let nx=p.x+x+dx,ny=p.y+y+dy;return nx>=0&&nx<W&&ny<H&&(ny<0||!board[ny][nx]);});
+}
+function move(dx,dy){
+ if(!playing||paused||over)return false;
+ if(valid(active,dx,dy)){active.x+=dx;active.y+=dy;draw();return true;}return false;
+}
+function rotate(){
+ if(!playing||paused||over)return;
+ let s=active.shape.map(([x,y])=>[3-y,x]);
+ let minX=Math.min(...s.map(p=>p[0])),minY=Math.min(...s.map(p=>p[1]));
+ s=s.map(([x,y])=>[x-minX,y-minY]);
+ for(let k of [0,-1,1,-2,2])if(valid(active,k,0,s)){active.x+=k;active.shape=s;draw();return;}
+}
+function lock(){
+ for(const [x,y] of active.shape){let yy=active.y+y;if(yy<0){finish();return;}board[yy][active.x+x]=active.c;}
+ let count=0;
+ for(let y=H-1;y>=0;y--)if(board[y].every(Boolean)){board.splice(y,1);board.unshift(Array(W).fill(0));count++;y++;}
+ if(count){lines+=count;score+=[0,100,300,500,800][count]*level;level=1+Math.floor(lines/10);}
+ active=newPiece();if(!valid(active)){finish();return;}update();draw();
+}
+function tick(){if(!move(0,1))lock();}
+function drop(){if(!playing||paused||over)return;while(valid(active,0,1)){active.y++;score+=2;}lock();update();draw();}
+function finish(){
+ playing=false;over=true;say("GAME OVER · SCORE "+score);draw();
+ if(score)saveScore(score);
+}
+function reset(){
+ cancelAnimationFrame(frame);
+ board=Array.from({length:H},()=>Array(W).fill(0));
+ score=lines=0;level=1;active=newPiece();
+ playing=true;paused=over=false;last=0;acc=0;
+ update();say("GOOD LUCK!");draw();frame=requestAnimationFrame(loop);
+}
+function loop(t){
+ if(!playing||paused||over)return;
+ if(!last)last=t;acc+=Math.min(t-last,100);last=t;
+ if(acc>=Math.max(90,750-(level-1)*60)){tick();acc=0;}
+ frame=requestAnimationFrame(loop);
+}
+function togglePause(){
+ if(!playing||over)return;
+ paused=!paused;say(paused?"PAUSED":"RESUMED");draw();
+ if(!paused){last=0;frame=requestAnimationFrame(loop);}
+}
+document.getElementById("start").onclick=reset;
+document.getElementById("pause").onclick=togglePause;
+document.getElementById("left").onclick=()=>move(-1,0);
+document.getElementById("right").onclick=()=>move(1,0);
+document.getElementById("rotate").onclick=rotate;
+document.getElementById("down").onclick=()=>{if(move(0,1)){score++;update();}else if(playing&&!paused)lock();};
+document.addEventListener("keydown",e=>{
+ if(document.getElementById("arcade").style.display!=="block")return;
+ const actions={ArrowLeft:()=>move(-1,0),ArrowRight:()=>move(1,0),ArrowDown:()=>{if(move(0,1)){score++;update();}else if(playing&&!paused)lock();},ArrowUp:rotate," ":drop,p:togglePause,P:togglePause};
+ if(actions[e.key]){e.preventDefault();actions[e.key]();}
+});
+
+/* LEADERBOARD */
+async function loadScores(){
+ const box=document.getElementById("scores");box.textContent="Loading...";
+ try{
+  const r=await fetch(API+"/api/scores");const d=await r.json();
+  box.replaceChildren();
+  if(!d.scores?.length){box.textContent="No records yet. Set the first!";return;}
+  d.scores.slice(0,10).forEach((s,i)=>{
+   const row=document.createElement("div");
+   row.style.display="flex";row.style.justifyContent="space-between";
+   const name=document.createElement("span"),value=document.createElement("b");
+   name.textContent=(i+1)+". "+s.name;value.textContent=Number(s.score).toLocaleString();
+   row.append(name,value);box.append(row);
+  });
+ }catch{box.textContent="Leaderboard offline";}
+}
+async function saveScore(value){
+ const name=prompt("Leaderboard name:","PLAYER");if(!name)return;
+ try{
+  const r=await fetch(API+"/api/scores",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,score:value})});
+  const d=await r.json();if(d.scores)loadScores();else say("Leaderboard unavailable");
+ }catch{say("Score could not be uploaded");}
+}
+fetch(API+"/api/health").catch(()=>{});
+draw();
+</script>
 </body>
-  </html>
-  
+</html>
