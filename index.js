@@ -1,6 +1,7 @@
 
 const MAX_SIZE = 2 * 1024 * 1024;
 const TIMEOUT = 12000;
+const SITE_ORIGIN = "https://vex-prox.pages.dev";
 
 function cors(origin) {
   return {
@@ -44,16 +45,18 @@ function validURL(value) {
     host.endsWith(".test") ||
     host === "0.0.0.0" ||
     host === "::1" ||
-    host.startsWith("127.") ||
-    host.startsWith("10.") ||
-    host.startsWith("192.168.") ||
-    host.startsWith("169.254.")
+    /^127\./.test(host) ||
+    /^10\./.test(host) ||
+    /^192\.168\./.test(host) ||
+    /^169\.254\./.test(host)
   ) return false;
 
+  const parts = host.split(".");
   if (
-    host.startsWith("172.") &&
-    Number(host.split(".")[1]) >= 16 &&
-    Number(host.split(".")[1]) <= 31
+    parts.length === 4 &&
+    parts[0] === "172" &&
+    Number(parts[1]) >= 16 &&
+    Number(parts[1]) <= 31
   ) return false;
 
   if (url.port && !["80", "443"].includes(url.port)) {
@@ -64,24 +67,16 @@ function validURL(value) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request) {
     const origin = request.headers.get("Origin") || "";
-
-    const allowed = [
-      env.SITE_ORIGIN,
-      "https://*.pages.dev"
-    ];
-
-    const originAllowed =
-      origin === env.SITE_ORIGIN ||
-      (origin.endsWith(".pages.dev") &&
-       origin.startsWith("https://"));
-
-    const responseOrigin = originAllowed
-      ? origin
-      : env.SITE_ORIGIN;
+    const allowed = origin === SITE_ORIGIN;
+    const responseOrigin = allowed ? origin : SITE_ORIGIN;
 
     if (request.method === "OPTIONS") {
+      if (!allowed) {
+        return json({ success: false, error: "Origin not allowed" }, 403, SITE_ORIGIN);
+      }
+
       return new Response(null, {
         status: 204,
         headers: {
@@ -103,24 +98,15 @@ export default {
     }
 
     if (url.pathname !== "/api/fetch") {
-      return json({
-        success: false,
-        error: "Endpoint not found"
-      }, 404, responseOrigin);
+      return json({ success: false, error: "Endpoint not found" }, 404, responseOrigin);
     }
 
-    if (!originAllowed) {
-      return json({
-        success: false,
-        error: "Origin not allowed"
-      }, 403, responseOrigin);
+    if (!allowed) {
+      return json({ success: false, error: "Origin not allowed" }, 403, SITE_ORIGIN);
     }
 
     if (request.method !== "POST") {
-      return json({
-        success: false,
-        error: "Use POST"
-      }, 405, responseOrigin);
+      return json({ success: false, error: "Use POST" }, 405, responseOrigin);
     }
 
     try {
@@ -128,10 +114,7 @@ export default {
       const target = body.url;
 
       if (typeof target !== "string" || !validURL(target)) {
-        return json({
-          success: false,
-          error: "Invalid or unsupported URL"
-        }, 400, responseOrigin);
+        return json({ success: false, error: "Invalid or unsupported URL" }, 400, responseOrigin);
       }
 
       let current = target;
@@ -139,10 +122,7 @@ export default {
 
       for (let i = 0; i <= 3; i++) {
         if (!validURL(current)) {
-          return json({
-            success: false,
-            error: "Unsafe redirect destination"
-          }, 403, responseOrigin);
+          return json({ success: false, error: "Unsafe redirect destination" }, 403, responseOrigin);
         }
 
         upstream = await fetch(current, {
@@ -155,17 +135,11 @@ export default {
           }
         });
 
-        if (
-          upstream.status >= 300 &&
-          upstream.status < 400
-        ) {
+        if (upstream.status >= 300 && upstream.status < 400) {
           const location = upstream.headers.get("Location");
 
           if (!location || i === 3) {
-            return json({
-              success: false,
-              error: "Too many redirects"
-            }, 502, responseOrigin);
+            return json({ success: false, error: "Too many redirects" }, 502, responseOrigin);
           }
 
           current = new URL(location, current).href;
@@ -190,30 +164,19 @@ export default {
         !type.includes("text/plain") &&
         !type.includes("application/xhtml+xml")
       ) {
-        return json({
-          success: false,
-          error: "Unsupported content type"
-        }, 415, responseOrigin);
+        return json({ success: false, error: "Unsupported content type" }, 415, responseOrigin);
       }
 
-      const declaredSize = Number(
-        upstream.headers.get("Content-Length") || 0
-      );
+      const declaredSize = Number(upstream.headers.get("Content-Length") || 0);
 
       if (declaredSize > MAX_SIZE) {
-        return json({
-          success: false,
-          error: "Page is too large"
-        }, 413, responseOrigin);
+        return json({ success: false, error: "Page is too large" }, 413, responseOrigin);
       }
 
       const text = await upstream.text();
 
       if (new TextEncoder().encode(text).length > MAX_SIZE) {
-        return json({
-          success: false,
-          error: "Page exceeded size limit"
-        }, 413, responseOrigin);
+        return json({ success: false, error: "Page exceeded size limit" }, 413, responseOrigin);
       }
 
       return json({
@@ -223,11 +186,8 @@ export default {
         content: text
       }, 200, responseOrigin);
 
-    } catch (error) {
-      return json({
-        success: false,
-        error: "Request failed"
-      }, 500, responseOrigin);
+    } catch {
+      return json({ success: false, error: "Request failed" }, 500, responseOrigin);
     }
   }
 };
