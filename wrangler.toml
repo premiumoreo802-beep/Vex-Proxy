@@ -1,7 +1,6 @@
-
 name = "vex-gateway"
 main = "index.js"
 compatibility_date = "2026-11-06"
 
 [vars]
-SITE_ORIGIN = "https://YOUR-SITE.pages.dev"
+SITE_ORIGIN = "https://vex-prox.pages.dev"
